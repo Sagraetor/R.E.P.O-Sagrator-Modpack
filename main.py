@@ -13,7 +13,9 @@ MOD_TARGET_FOLDER = [DEFAULT_MOD_TARGET_FOLDER]  # Change this to your game's mo
 # === GUI SETUP ===
 window = tk.Tk()
 window.title("Sagrator REPO Modpack Installer")
-window.geometry("450x200")
+window.geometry("450x230")
+
+window.iconbitmap("icon.ico")
 
 status_label = tk.Label(window, text="", font=("Arial", 10))
 progress = ttk.Progressbar(window, orient="horizontal", length=300, mode="determinate")
@@ -54,6 +56,10 @@ def install_mod():
 
 # === FUNCTION: Run ===
 def run_installer():
+    if not os.path.exists(MOD_TARGET_FOLDER[0]):
+        messagebox.showerror("Error", "Something went wrong: Specified installation path not found")
+        return
+
     status_label.config(text="Starting...")
     window.update_idletasks()
     try:
@@ -70,16 +76,41 @@ def choose_folder():
         MOD_TARGET_FOLDER[0] = folder
         install_folder_label.config(text=MOD_TARGET_FOLDER[0])
 
+def delete_mod():
+    status_label.config(text="Deleting mod files...")
+    window.update_idletasks()
+
+    try:
+        bepinex_path = os.path.join(MOD_TARGET_FOLDER[0], "BepInEx")
+        if os.path.exists(bepinex_path):
+            shutil.rmtree(bepinex_path)
+        
+        # Optional: remove other specific mod-related files if needed
+        for item in ["doorstop_config.ini", "winhttp.dll"]:
+            item_path = os.path.join(MOD_TARGET_FOLDER[0], item)
+            if os.path.exists(item_path):
+                os.remove(item_path)
+
+        messagebox.showinfo("Deleted", "Mod files deleted successfully.")
+        status_label.config(text="Mod files removed.")
+        window.destroy()
+    except Exception as e:
+        messagebox.showerror("Error", f"Failed to delete mod files:\n{e}")
+        status_label.config(text="")
+
 # === GUI LAYOUT ===
 tk.Label(window, text="Installing mod to:", font=("Arial", 11)).pack(pady=5)
 
 install_folder_label = tk.Label(window, text=MOD_TARGET_FOLDER[0], font=("Arial", 9), fg="gray")
 install_folder_label.pack(pady=5)
 
-tk.Button(window, text="Change Folder", font=("Arial", 10), command=choose_folder).pack(pady=2)
+tk.Button(window, text="Change Folder", font=("Arial", 10), command=choose_folder).pack(pady=5)
 
-tk.Button(window, text="Start Installation", font=("Arial", 12), command=run_installer).pack(pady=10)
+status_label.pack(pady=5)
 
-status_label.pack()
+tk.Button(window, text="Start Installation", font=("Arial", 12), command=run_installer).pack(pady=5)   
+
+tk.Button(window, text="Delete Mod Files", font=("Arial", 12), command=delete_mod).pack(pady=5)
+
 
 window.mainloop()
