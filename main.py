@@ -1,7 +1,7 @@
 import gdown
 import zipfile
 import shutil
-import os
+import os, sys
 import tkinter as tk
 from tkinter import filedialog, messagebox, ttk
 
@@ -10,12 +10,19 @@ ZIP_FILENAME = "latest.zip"
 DEFAULT_MOD_TARGET_FOLDER = r"C:\Program Files (x86)\Steam\steamapps\common\REPO"
 MOD_TARGET_FOLDER = [DEFAULT_MOD_TARGET_FOLDER]  # Change this to your game's mod folder
 
+def resource(relative_path):
+    base_path = getattr(
+        sys,
+        '_MEIPASS',
+        os.path.dirname(os.path.abspath(__file__)))
+    return os.path.join(base_path, relative_path)
+
 # === GUI SETUP ===
 window = tk.Tk()
 window.title("Sagrator REPO Modpack Installer")
 window.geometry("450x230")
 
-window.iconbitmap("icon.ico")
+window.iconbitmap(resource("icon.ico"))
 
 status_label = tk.Label(window, text="", font=("Arial", 10))
 progress = ttk.Progressbar(window, orient="horizontal", length=300, mode="determinate")
